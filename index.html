@@ -192,29 +192,6 @@ function updatePlatformText() {
     document.getElementById('label-ig').className = isIG ? "segment-label active" : "segment-label";
 }
 
-async function shortenUrl(longUrl) {
-    if (!longUrl || longUrl.trim() === "") return "";
-    if (longUrl.length < 25) return longUrl; // Don't shorten already short links
-
-    try {
-        // Wrap the is.gd API call in AllOrigins to bypass CORS on GitHub Pages
-        // Added logstats=1 to enable click tracking!
-        const isGdUrl = `https://is.gd/create.php?format=json&logstats=1&url=${encodeURIComponent(longUrl)}`;
-        const allOriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(isGdUrl)}`;
-        
-        const response = await fetch(allOriginsUrl);
-        if (!response.ok) throw new Error("Proxy network error");
-        
-        const data = await response.json();
-        const isGdData = JSON.parse(data.contents); // AllOrigins returns the target's response inside 'contents'
-        
-        return isGdData.shorturl ? isGdData.shorturl : longUrl;
-    } catch (error) {
-        console.error("is.gd shortening failed:", error);
-        return longUrl; 
-    }
-}
-
 async function processLinks() {
     const btn = document.getElementById('okBtn');
     const spinner = document.getElementById('spinner');
@@ -240,12 +217,21 @@ async function processLinks() {
     const b = isIG ? "" : "*";
     const i = isIG ? "" : "_";
 
-    // Fast parallel fetching for all links at once!
-    const [gdLink, dbLink, tnLink] = await Promise.all([
-        useGd ? shortenUrl(gdInput) : Promise.resolve(""),
-        useDb ? shortenUrl(dbInput) : Promise.resolve(""),
-        useTn ? shortenUrl(tnInput) : Promise.resolve("")
-    ]);
+    // DOING IT SEQUENTIALLY TO AVOID PROXY RATE LIMITS!
+    let gdLink = "";
+    if (useGd) {
+        gdLink = await shortenUrl(gdInput);
+    }
+
+    let dbLink = "";
+    if (useDb) {
+        dbLink = await shortenUrl(dbInput);
+    }
+
+    let tnLink = "";
+    if (useTn) {
+        tnLink = await shortenUrl(tnInput);
+    }
 
     let message = `Hello ${title} ${name}!\nYour photos are now ready for download\n\n`;
 
