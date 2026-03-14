@@ -179,6 +179,7 @@
 </div>
 
 <script>
+const TINYURL_TOKEN = "ppeSGcIPcTYkQYL1dBcSnetsvdYT4QmMCuzVrqMSMnioSEa9IvfBbKChnR2l";
 let finalMessage = "";
 
 function toggleVisibility(id) {
@@ -192,44 +193,32 @@ function updatePlatformText() {
     document.getElementById('label-ig').className = isIG ? "segment-label active" : "segment-label";
 }
 
-// THE NEW JSONP TRICK - NO PROXIES NEEDED!
-function shortenUrl(longUrl) {
-    return new Promise((resolve) => {
-        if (!longUrl || longUrl.trim() === "") return resolve("");
-        if (longUrl.length < 25) return resolve(longUrl); // Don't shorten already short links
+// OFFICIAL TINYURL API WITH YOUR TOKEN
+async function shortenUrl(longUrl) {
+    if (!longUrl || longUrl.trim() === "") return "";
+    if (longUrl.length < 25) return longUrl; 
 
-        // Create a unique callback name for this specific link
-        const callbackName = 'isgd_callback_' + Math.round(100000 * Math.random());
+    try {
+        const response = await fetch("https://api.tinyurl.com/create", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${TINYURL_TOKEN}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ 
+                "url": longUrl,
+                "domain": "tinyurl.com"
+            })
+        });
         
-        // Create a temporary script tag to bypass CORS
-        const script = document.createElement('script');
-
-        // Set an 8-second timeout just in case the wifi drops
-        const timeoutId = setTimeout(() => {
-            delete window[callbackName];
-            script.remove();
-            console.error("is.gd timed out");
-            resolve(longUrl); // Instantly fallback to long URL
-        }, 8000);
-
-        // This function catches the data when is.gd responds
-        window[callbackName] = function(data) {
-            clearTimeout(timeoutId); // Success! Stop the timer.
-            delete window[callbackName]; // Clean up memory
-            script.remove(); // Remove the script tag
-            
-            if (data.shorturl) {
-                resolve(data.shorturl);
-            } else {
-                console.error("is.gd error:", data.errormessage);
-                resolve(longUrl);
-            }
-        };
-
-        // Attach the script to the document to execute it (triggers the shortening)
-        script.src = `https://is.gd/create.php?format=json&logstats=1&url=${encodeURIComponent(longUrl)}&callback=${callbackName}`;
-        document.body.appendChild(script);
-    });
+        if (!response.ok) throw new Error("TinyURL API rejected the request");
+        
+        const data = await response.json();
+        return data.data.tiny_url ? data.data.tiny_url : longUrl;
+    } catch (error) {
+        console.error("TinyURL shortening failed:", error);
+        return longUrl; 
+    }
 }
 
 async function processLinks() {
@@ -252,12 +241,11 @@ async function processLinks() {
     const useDb = document.getElementById('toggleDb').checked && dbInput !== "";
     const useTn = document.getElementById('toggleTn').checked && tnInput !== "";
 
-    // Platform Logic: If true (IG), symbols are empty strings. If false (WA), symbols are applied.
     const isIG = document.getElementById('ig-select').checked;
     const b = isIG ? "" : "*";
     const i = isIG ? "" : "_";
 
-    // DOING IT SEQUENTIALLY TO BE SAFE
+    // Sequential generation to avoid hitting API rate limits
     let gdLink = "";
     if (useGd) {
         gdLink = await shortenUrl(gdInput);
