@@ -192,6 +192,35 @@ function updatePlatformText() {
     document.getElementById('label-ig').className = isIG ? "segment-label active" : "segment-label";
 }
 
+async function shortenUrl(longUrl) {
+    if (!longUrl || longUrl.trim() === "") return "";
+    if (longUrl.length < 25) return longUrl; // Don't shorten already short links
+
+    try {
+        // Create a 4-second timeout to prevent infinite hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+        // is.gd API with logstats=1 for click tracking
+        const isGdUrl = `https://is.gd/create.php?format=json&logstats=1&url=${encodeURIComponent(longUrl)}`;
+        const allOriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(isGdUrl)}`;
+        
+        // Pass the timeout controller to the fetch request
+        const response = await fetch(allOriginsUrl, { signal: controller.signal });
+        clearTimeout(timeoutId); // Stop the timer if it succeeds quickly!
+        
+        if (!response.ok) throw new Error("Proxy network error");
+        
+        const data = await response.json();
+        const isGdData = JSON.parse(data.contents); 
+        
+        return isGdData.shorturl ? isGdData.shorturl : longUrl;
+    } catch (error) {
+        console.error("Shortening failed or timed out:", error);
+        return longUrl; // Instantly fallback to long URL if proxy hangs
+    }
+}
+
 async function processLinks() {
     const btn = document.getElementById('okBtn');
     const spinner = document.getElementById('spinner');
