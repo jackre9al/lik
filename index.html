@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Delivery Links</title>
     <style>
-        /* Light Mode Variables (Default) */
+        /* Light Mode Variables */
         :root {
             --bg-color: #f5f5f7; --card-bg: #ffffff; --text-main: #1d1d1f; 
             --text-muted: #86868b; --apple-blue: #0071e3; --apple-blue-hover: #0077ED; 
             --input-bg: #f5f5f7; --ios-green: #34c759; --switch-bg: #e5e5ea;
         }
 
-        /* Dark Mode Variables (Automatic) */
+        /* Dark Mode Variables */
         @media (prefers-color-scheme: dark) {
             :root {
                 --bg-color: #000000; --card-bg: #1c1c1e; --text-main: #f5f5f7; 
@@ -75,7 +75,13 @@
         input:checked + .slider:before { transform: translateX(18px); }
         .link-input-container { transition: opacity 0.3s ease, height 0.3s ease; overflow: hidden; }
 
-        .btn-row { display: flex; gap: 12px; margin-top: 28px; }
+        /* Platform Toggle Styling */
+        .platform-row { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 10px; margin-bottom: 20px; }
+        .plat-text { font-size: 14px; font-weight: 700; transition: color 0.3s; }
+        .plat-active { color: var(--text-main); }
+        .plat-inactive { color: var(--text-muted); }
+
+        .btn-row { display: flex; gap: 12px; }
         button { padding: 16px; border: none; border-radius: 980px; font-size: 17px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         button:active { transform: scale(0.96); }
         button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
@@ -132,6 +138,15 @@
             <div id="container-tn" class="link-input-container"><input type="url" id="tn" placeholder="Paste link" autocomplete="off"></div>
         </div>
 
+        <div class="platform-row">
+            <span id="text-wa" class="plat-text plat-active">WA</span>
+            <label class="switch">
+                <input type="checkbox" id="togglePlatform" onchange="updatePlatformText()">
+                <span class="slider"></span>
+            </label>
+            <span id="text-ig" class="plat-text plat-inactive">IG</span>
+        </div>
+
         <div class="btn-row">
             <button class="btn-clear" onclick="clearFields()">Clear</button>
             <button class="btn-ok" id="okBtn" onclick="processLinks()">
@@ -156,6 +171,12 @@ let finalMessage = "";
 function toggleVisibility(id) {
     const isChecked = document.getElementById('toggle' + id.charAt(0).toUpperCase() + id.slice(1)).checked;
     document.getElementById('container-' + id).style.display = isChecked ? 'block' : 'none';
+}
+
+function updatePlatformText() {
+    const isIG = document.getElementById('togglePlatform').checked;
+    document.getElementById('text-wa').className = isIG ? "plat-text plat-inactive" : "plat-text plat-active";
+    document.getElementById('text-ig').className = isIG ? "plat-text plat-active" : "plat-text plat-inactive";
 }
 
 async function shortenUrl(longUrl) {
@@ -202,6 +223,11 @@ async function processLinks() {
     const useDb = document.getElementById('toggleDb').checked && dbInput !== "";
     const useTn = document.getElementById('toggleTn').checked && tnInput !== "";
 
+    // Platform Logic: If true (IG), symbols are empty strings. If false (WA), symbols are applied.
+    const isIG = document.getElementById('togglePlatform').checked;
+    const b = isIG ? "" : "*";
+    const i = isIG ? "" : "_";
+
     let message = `Hello ${title} ${name}!\nYour photos are now ready for download\n\n`;
 
     if (useGd || useDb || useTn) {
@@ -210,17 +236,17 @@ async function processLinks() {
 
     if (useGd) {
         const gdLink = await shortenUrl(gdInput);
-        message += `• Google Drive ~ link available for up to 1 year\n${gdLink}\n\n`;
+        message += `${b}Google Drive${b}\n${i}Best for viewing & long-term storage (1 year)${i}\n${gdLink}\n\n`;
     }
 
     if (useDb) {
         const dbLink = await shortenUrl(dbInput);
-        message += `• Dropbox ~ link available for 2 weeks\n${dbLink}\n\n`;
+        message += `${b}Dropbox${b}\n${i}Quick access for the next 2 weeks${i}\n${dbLink}\n\n`;
     }
 
     if (useTn) {
         const tnLink = await shortenUrl(tnInput);
-        message += `• TransferNow ~ link available for 7 days (no app required)\n${tnLink}\n\n`;
+        message += `${b}TransferNow${b}\n${i}Fast direct download (active for 7 days)${i}\n${tnLink}\n\n`;
     }
 
     message += `Kindly ensure that the files are downloaded and safely saved before the respective link expires.\n\nShould you experience any difficulty accessing the files, please feel free to contact me.\n\nThank you, and I hope you enjoy the photos!`;
@@ -244,7 +270,7 @@ function attemptAutoCopy(text) {
         navigator.clipboard.writeText(text).then(() => {
             showSuccess();
         }).catch(err => {
-            console.log("Auto-copy blocked by browser. User must click COPY manually.");
+            console.log("Auto-copy blocked by browser.");
         });
     } else {
         fallbackCopyTextToClipboard(text);
@@ -289,10 +315,15 @@ function clearFields() {
     document.getElementById('db').value = '';
     document.getElementById('tn').value = '';
     
+    // Reset Cloud Toggles
     ['Gd', 'Db', 'Tn'].forEach(id => {
         document.getElementById('toggle' + id).checked = true;
         document.getElementById('container-' + id.toLowerCase()).style.display = 'block';
     });
+
+    // Reset Platform Toggle to WA
+    document.getElementById('togglePlatform').checked = false;
+    updatePlatformText();
 
     document.getElementById('previewContainer').style.display = 'none';
     document.getElementById('status').style.opacity = '0';
