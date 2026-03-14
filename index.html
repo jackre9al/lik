@@ -146,10 +146,10 @@
 
         <div class="input-group">
             <div class="header-row">
-                <label>WeTransfer</label>
-                <label class="switch"><input type="checkbox" id="toggleWt" checked onchange="toggleVisibility('wt')"><span class="slider"></span></label>
+                <label>TransferNow</label>
+                <label class="switch"><input type="checkbox" id="toggleTn" checked onchange="toggleVisibility('tn')"><span class="slider"></span></label>
             </div>
-            <div id="container-wt" class="link-input-container"><input type="url" id="wt" placeholder="Paste link" autocomplete="off"></div>
+            <div id="container-tn" class="link-input-container"><input type="url" id="tn" placeholder="Paste link" autocomplete="off"></div>
         </div>
 
         <div class="header-row" style="justify-content: center;"><label>Message Format</label></div>
@@ -198,7 +198,8 @@ async function shortenUrl(longUrl) {
 
     try {
         // Wrap the is.gd API call in AllOrigins to bypass CORS on GitHub Pages
-        const isGdUrl = `https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`;
+        // Added logstats=1 to enable click tracking!
+        const isGdUrl = `https://is.gd/create.php?format=json&logstats=1&url=${encodeURIComponent(longUrl)}`;
         const allOriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(isGdUrl)}`;
         
         const response = await fetch(allOriginsUrl);
@@ -228,11 +229,11 @@ async function processLinks() {
     
     const gdInput = document.getElementById('gd').value.trim();
     const dbInput = document.getElementById('db').value.trim();
-    const wtInput = document.getElementById('wt').value.trim();
+    const tnInput = document.getElementById('tn').value.trim();
 
     const useGd = document.getElementById('toggleGd').checked && gdInput !== "";
     const useDb = document.getElementById('toggleDb').checked && dbInput !== "";
-    const useWt = document.getElementById('toggleWt').checked && wtInput !== "";
+    const useTn = document.getElementById('toggleTn').checked && tnInput !== "";
 
     // Platform Logic: If true (IG), symbols are empty strings. If false (WA), symbols are applied.
     const isIG = document.getElementById('ig-select').checked;
@@ -240,15 +241,15 @@ async function processLinks() {
     const i = isIG ? "" : "_";
 
     // Fast parallel fetching for all links at once!
-    const [gdLink, dbLink, wtLink] = await Promise.all([
+    const [gdLink, dbLink, tnLink] = await Promise.all([
         useGd ? shortenUrl(gdInput) : Promise.resolve(""),
         useDb ? shortenUrl(dbInput) : Promise.resolve(""),
-        useWt ? shortenUrl(wtInput) : Promise.resolve("")
+        useTn ? shortenUrl(tnInput) : Promise.resolve("")
     ]);
 
     let message = `Hello ${title} ${name}!\nYour photos are now ready for download\n\n`;
 
-    if (useGd || useDb || useWt) {
+    if (useGd || useDb || useTn) {
         message += `For your convenience, the files are available via the following platforms:\n\n`;
     }
 
@@ -260,8 +261,8 @@ async function processLinks() {
         message += `${b}Dropbox${b}\n${i}Quick access for the next 2 weeks${i}\n${dbLink}\n\n`;
     }
 
-    if (useWt) {
-        message += `${b}WeTransfer${b}\n${i}Fast direct download (active for 7 days)${i}\n${wtLink}\n\n`;
+    if (useTn) {
+        message += `${b}TransferNow${b}\n${i}Fast direct download (active for 7 days)${i}\n${tnLink}\n\n`;
     }
 
     message += `Kindly ensure that the files are downloaded and safely saved before the respective link expires.\n\nShould you experience any difficulty accessing the files, please feel free to contact me.\n\nThank you, and I hope you enjoy the photos!`;
@@ -328,10 +329,10 @@ function clearFields() {
     document.getElementById('clientName').value = '';
     document.getElementById('gd').value = '';
     document.getElementById('db').value = '';
-    document.getElementById('wt').value = '';
+    document.getElementById('tn').value = '';
     
     // Reset Cloud Toggles
-    ['Gd', 'Db', 'Wt'].forEach(id => {
+    ['Gd', 'Db', 'Tn'].forEach(id => {
         document.getElementById('toggle' + id).checked = true;
         document.getElementById('container-' + id.toLowerCase()).style.display = 'block';
     });
