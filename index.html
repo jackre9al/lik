@@ -245,21 +245,14 @@ async function processLinks() {
     const b = isIG ? "" : "*";
     const i = isIG ? "" : "_";
 
-    // Sequential generation to avoid hitting API rate limits
     let gdLink = "";
-    if (useGd) {
-        gdLink = await shortenUrl(gdInput);
-    }
+    if (useGd) gdLink = await shortenUrl(gdInput);
 
     let dbLink = "";
-    if (useDb) {
-        dbLink = await shortenUrl(dbInput);
-    }
+    if (useDb) dbLink = await shortenUrl(dbInput);
 
     let tnLink = "";
-    if (useTn) {
-        tnLink = await shortenUrl(tnInput);
-    }
+    if (useTn) tnLink = await shortenUrl(tnInput);
 
     let message = `Hello ${title} ${name}!\nYour photos are now ready for download\n\n`;
 
@@ -358,6 +351,17 @@ function clearFields() {
     document.getElementById('previewContainer').style.display = 'none';
     document.getElementById('status').style.opacity = '0';
 }
+
+// THE "ENTER KEY" UPGRADE
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        const activeElement = document.activeElement;
+        // Trigger processLinks if any input or select is focused
+        if (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT') {
+            processLinks();
+        }
+    }
+});
 </script>
 
 </body>
