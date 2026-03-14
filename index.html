@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Delivery</title>
+    <style>
+        /* Apple-style CSS */
+        :root {
+            --bg-color: #f5f5f7;
+            --card-bg: #ffffff;
+            --text-main: #1d1d1f;
+            --text-muted: #86868b;
+            --apple-blue: #0071e3;
+            --apple-blue-hover: #0077ED;
+            --input-bg: #f5f5f7;
+            --ios-green: #34c759;
+        }
+
+        html, body {
+            margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            -webkit-font-smoothing: antialiased; color: var(--text-main);
+        }
+
+        .scroll-container {
+            width: 100%; height: 100%; overflow-y: auto;
+            -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 40px 20px; box-sizing: border-box;
+        }
+
+        .card {
+            width: 100%; max-width: 420px; background: var(--card-bg);
+            border-radius: 18px; padding: 32px 24px; box-sizing: border-box;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04); margin-bottom: 40px;
+        }
+
+        h2 { font-size: 24px; font-weight: 600; text-align: center; margin: 0 0 24px 0; letter-spacing: -0.01em; }
+
+        .input-group { margin-bottom: 20px; }
+        
+        .header-row {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-left: 4px;
+        }
+
+        label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+
+        .name-row { display: flex; gap: 12px; }
+
+        input[type="text"], input[type="url"], select {
+            width: 100%; background: var(--input-bg); border: 1px solid transparent;
+            border-radius: 12px; padding: 14px 16px; font-size: 17px; 
+            color: var(--text-main); box-sizing: border-box; outline: none; transition: 0.2s;
+            appearance: none; -webkit-appearance: none;
+        }
+
+        select {
+            flex: 1; padding-right: 32px;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2386868b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 12px center; background-size: 14px;
+        }
+
+        .name-input { flex: 2.5; }
+
+        input:focus, select:focus {
+            border-color: var(--apple-blue); background: var(--card-bg);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
+        }
+
+        /* iOS Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 42px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #e5e5ea; transition: .3s; border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px;
+            background-color: white; transition: .3s; border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:checked + .slider { background-color: var(--ios-green); }
+        input:checked + .slider:before { transform: translateX(18px); }
+
+        .link-input-container {
+            transition: opacity 0.3s ease, height 0.3s ease;
+            overflow: hidden;
+        }
+
+        .btn-row { display: flex; gap: 12px; margin-top: 28px; }
+        button {
+            padding: 16px; border: none; border-radius: 980px; font-size: 17px;
+            font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        button:active { transform: scale(0.96); }
+        .btn-clear { flex: 1; background: var(--input-bg); color: var(--text-main); }
+        .btn-ok { flex: 2; background: var(--apple-blue); color: white; }
+        .btn-ok:hover { background: var(--apple-blue-hover); }
+
+        #status { text-align: center; color: var(--text-main); font-size: 14px; margin-top: 16px; font-weight: 500; opacity: 0; transition: 0.3s; }
+        
+        #previewContainer {
+            margin-top: 24px; background: var(--input-bg); padding: 20px;
+            border-radius: 14px; display: none;
+        }
+        #previewBox { font-size: 14px; line-height: 1.5; white-space: pre-wrap; color: var(--text-muted); margin-bottom: 16px; }
+        .btn-copy-small {
+            width: 100%; padding: 12px; font-size: 14px; background: #e5e5ea; color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+
+<div class="scroll-container">
+    <div class="card">
+        <h2>Delivery Links</h2>
+        
+        <div class="input-group">
+            <div class="header-row"><label>Client Details (Required)</label></div>
+            <div class="name-row">
+                <select id="title">
+                    <option value="Mr.">Mr.</option>
+                    <option value="Mrs.">Mrs.</option>
+                    <option value="Ms.">Ms.</option>
+                </select>
+                <input type="text" id="clientName" class="name-input" placeholder="Name" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="header-row">
+                <label>Google Drive</label>
+                <label class="switch">
+                    <input type="checkbox" id="toggleGd" checked onchange="toggleVisibility('gd')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div id="container-gd" class="link-input-container">
+                <input type="url" id="gd" placeholder="Paste link" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="header-row">
+                <label>Dropbox</label>
+                <label class="switch">
+                    <input type="checkbox" id="toggleDb" checked onchange="toggleVisibility('db')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div id="container-db" class="link-input-container">
+                <input type="url" id="db" placeholder="Paste link" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="header-row">
+                <label>TransferNow</label>
+                <label class="switch">
+                    <input type="checkbox" id="toggleTn" checked onchange="toggleVisibility('tn')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div id="container-tn" class="link-input-container">
+                <input type="url" id="tn" placeholder="Paste link" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn-clear" onclick="clearFields()">Clear</button>
+            <button class="btn-ok" onclick="generateAndCopy()">Copy</button>
+        </div>
+        
+        <div id="status">Copied to Clipboard</div>
+        
+        <div id="previewContainer">
+            <div id="previewBox"></div>
+            <button class="btn-copy-small" onclick="copyToClipboardOnly()">Copy Again</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let lastGeneratedMessage = "";
+
+// Hides or shows the input box based on the toggle switch
+function toggleVisibility(id) {
+    const isChecked = document.getElementById('toggle' + id.charAt(0).toUpperCase() + id.slice(1)).checked;
+    const container = document.getElementById('container-' + id);
+    if (isChecked) {
+        container.style.display = 'block';
+    } else {
+        container.style.display = 'none';
+    }
+}
+
+function generateAndCopy() {
+    const title = document.getElementById('title').value;
+    const name = document.getElementById('clientName').value || "Client";
+    
+    // Check which switches are ON
+    const useGd = document.getElementById('toggleGd').checked;
+    const useDb = document.getElementById('toggleDb').checked;
+    const useTn = document.getElementById('toggleTn').checked;
+
+    // Start building the message dynamically
+    let message = `Hello ${title} ${name}!\nYour photos are now ready for download\n\n`;
+
+    // Only add this line if at least one link is active
+    if (useGd || useDb || useTn) {
+        message += `For your convenience, the files are available via the following platforms:\n\n`;
+    }
+
+    if (useGd) {
+        const gdLink = document.getElementById('gd').value || "[Link Missing]";
+        message += `• Google Drive ~ link available for up to 1 year\n${gdLink}\n\n`;
+    }
+
+    if (useDb) {
+        const dbLink = document.getElementById('db').value || "[Link Missing]";
+        message += `• Dropbox ~ link available for 2 weeks\n${dbLink}\n\n`;
+    }
+
+    if (useTn) {
+        const tnLink = document.getElementById('tn').value || "[Link Missing]";
+        message += `• TransferNow ~ link available for 7 days (no app required)\n${tnLink}\n\n`;
+    }
+
+    message += `Kindly ensure that the files are downloaded and safely saved before the respective link expires\nShould you experience any difficulty accessing the files, please feel free to contact me\nThank you, and I hope you enjoy the photos`;
+
+    lastGeneratedMessage = message;
+
+    // Update UI
+    const previewContainer = document.getElementById('previewContainer');
+    const pb = document.getElementById('previewBox');
+    previewContainer.style.display = 'block';
+    pb.innerText = message;
+
+    copyToClipboardOnly();
+}
+
+function copyToClipboardOnly() {
+    navigator.clipboard.writeText(lastGeneratedMessage).then(() => {
+        const status = document.getElementById('status');
+        status.style.opacity = '1';
+        setTimeout(() => { status.style.opacity = '0'; }, 2000);
+    });
+}
+
+function clearFields() {
+    document.getElementById('clientName').value = '';
+    document.getElementById('gd').value = '';
+    document.getElementById('db').value = '';
+    document.getElementById('tn').value = '';
+    
+    // Reset Toggles to ON
+    ['Gd', 'Db', 'Tn'].forEach(id => {
+        document.getElementById('toggle' + id).checked = true;
+        document.getElementById('container-' + id.toLowerCase()).style.display = 'block';
+    });
+
+    document.getElementById('previewContainer').style.display = 'none';
+    document.getElementById('status').style.opacity = '0';
+}
+</script>
+
+</body>
+</html>
