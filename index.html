@@ -192,33 +192,44 @@ function updatePlatformText() {
     document.getElementById('label-ig').className = isIG ? "segment-label active" : "segment-label";
 }
 
-async function shortenUrl(longUrl) {
-    if (!longUrl || longUrl.trim() === "") return "";
-    if (longUrl.length < 25) return longUrl; // Don't shorten already short links
+// THE NEW JSONP TRICK - NO PROXIES NEEDED!
+function shortenUrl(longUrl) {
+    return new Promise((resolve) => {
+        if (!longUrl || longUrl.trim() === "") return resolve("");
+        if (longUrl.length < 25) return resolve(longUrl); // Don't shorten already short links
 
-    try {
-        // Create a 4-second timeout to prevent infinite hanging
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        // Create a unique callback name for this specific link
+        const callbackName = 'isgd_callback_' + Math.round(100000 * Math.random());
+        
+        // Create a temporary script tag to bypass CORS
+        const script = document.createElement('script');
 
-        // is.gd API with logstats=1 for click tracking
-        const isGdUrl = `https://is.gd/create.php?format=json&logstats=1&url=${encodeURIComponent(longUrl)}`;
-        const allOriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(isGdUrl)}`;
-        
-        // Pass the timeout controller to the fetch request
-        const response = await fetch(allOriginsUrl, { signal: controller.signal });
-        clearTimeout(timeoutId); // Stop the timer if it succeeds quickly!
-        
-        if (!response.ok) throw new Error("Proxy network error");
-        
-        const data = await response.json();
-        const isGdData = JSON.parse(data.contents); 
-        
-        return isGdData.shorturl ? isGdData.shorturl : longUrl;
-    } catch (error) {
-        console.error("Shortening failed or timed out:", error);
-        return longUrl; // Instantly fallback to long URL if proxy hangs
-    }
+        // Set an 8-second timeout just in case the wifi drops
+        const timeoutId = setTimeout(() => {
+            delete window[callbackName];
+            script.remove();
+            console.error("is.gd timed out");
+            resolve(longUrl); // Instantly fallback to long URL
+        }, 8000);
+
+        // This function catches the data when is.gd responds
+        window[callbackName] = function(data) {
+            clearTimeout(timeoutId); // Success! Stop the timer.
+            delete window[callbackName]; // Clean up memory
+            script.remove(); // Remove the script tag
+            
+            if (data.shorturl) {
+                resolve(data.shorturl);
+            } else {
+                console.error("is.gd error:", data.errormessage);
+                resolve(longUrl);
+            }
+        };
+
+        // Attach the script to the document to execute it (triggers the shortening)
+        script.src = `https://is.gd/create.php?format=json&logstats=1&url=${encodeURIComponent(longUrl)}&callback=${callbackName}`;
+        document.body.appendChild(script);
+    });
 }
 
 async function processLinks() {
@@ -246,7 +257,7 @@ async function processLinks() {
     const b = isIG ? "" : "*";
     const i = isIG ? "" : "_";
 
-    // DOING IT SEQUENTIALLY TO AVOID PROXY RATE LIMITS!
+    // DOING IT SEQUENTIALLY TO BE SAFE
     let gdLink = "";
     if (useGd) {
         gdLink = await shortenUrl(gdInput);
