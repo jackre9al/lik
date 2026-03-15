@@ -22,16 +22,16 @@
         }
 
         html, body {
-            margin: 0; padding: 0; width: 100%; min-height: 100vh;
+            margin: 0; padding: 0; width: 100%; height: 100%;
             background-color: var(--bg-outer);
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             -webkit-font-smoothing: antialiased; color: var(--text-main);
-            overflow: hidden; /* Prevents scroll when on the Hub */
+            overflow: hidden; 
         }
 
         /* 🌊 LIQUID BOKEH */
         .liquid-bg {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            position: fixed; inset: 0;
             z-index: 1; overflow: hidden; pointer-events: none;
             transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -50,16 +50,16 @@
             100% { transform: translate(10%, 10%) scale(1.1); }
         }
 
-        /* 🧊 ADAPTIVE GLASS HUB */
+        /* 🧊 ADAPTIVE GLASS HUB (FIXED CENTERING) */
         .entry-hub-wrapper {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            position: fixed; inset: 0; /* Uses inset instead of 100vh to fix mobile browser offset */
             display: flex; justify-content: center; align-items: center; z-index: 5000;
             background: rgba(0,0,0,0.02);
             transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
         }
 
         .entry-hub-wrapper.active-hide {
-            transform: translateY(-120vh); /* Shoots to the top */
+            transform: translateY(-120vh); 
             opacity: 0; pointer-events: none;
         }
 
@@ -91,37 +91,37 @@
 
         /* 📱 MAIN APP INTERFACE */
         .main-app-container {
-            width: 100%; display: none; flex-direction: column; align-items: center;
-            opacity: 0; z-index: 10;
+            width: 100%; height: 100%; display: none; flex-direction: column; align-items: center;
+            opacity: 0; z-index: 10; position: relative;
             transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .main-app-container.visible { display: flex; opacity: 1; }
 
-        .scroll-container { 
-            width: 100%; padding: 40px 0 60px; box-sizing: border-box; 
-            display: flex; flex-direction: column; align-items: center;
-            overflow-y: auto; height: 100vh; -webkit-overflow-scrolling: touch;
-        }
-
-        /* 🏠 THE NEW APPLE-STYLE HOME ICON */
+        /* 🏠 NEW APPLE-STYLE HOME ICON (TOP LEFT, STATIC) */
         .home-btn {
+            position: absolute; top: 20px; left: 20px; /* Fixed top left */
             display: flex; justify-content: center; align-items: center;
             background: transparent; border: none; cursor: pointer;
-            padding: 10px; margin-bottom: 24px;
+            padding: 8px; z-index: 100;
             transition: transform 0.2s ease, opacity 0.2s ease;
             -webkit-tap-highlight-color: transparent;
         }
         .home-btn:active { transform: scale(0.85); opacity: 0.6; }
         
         .home-icon-svg {
-            /* Scales cleanly based on screen width, maxes out at 36px */
-            width: clamp(28px, 8vw, 36px); 
+            width: 20px; /* Small, minimalist size */
             height: auto;
-            fill: var(--text-main); /* Deep grey-black in light mode, soft white in dark mode */
+            fill: var(--text-main);
+        }
+
+        .scroll-container { 
+            width: 100%; padding: 60px 0 60px; box-sizing: border-box; 
+            display: flex; flex-direction: column; align-items: center;
+            overflow-y: auto; height: 100%; -webkit-overflow-scrolling: touch;
         }
 
         .card { 
-            width: calc(100% - 40px); /* Leaves a sleek 20px frame on L/R */
+            width: calc(100% - 40px); 
             max-width: 440px; background: var(--card-bg); border-radius: 28px; 
             padding: 32px 24px; box-sizing: border-box; box-shadow: 0 20px 50px rgba(0,0,0,0.08); 
             margin-bottom: 40px; 
@@ -176,14 +176,13 @@
 </div>
 
 <div class="main-app-container" id="mainApp">
-    <div class="scroll-container">
-        
-        <button class="home-btn" onclick="goHome()" aria-label="Return to Home">
-            <svg viewBox="0 0 24 24" class="home-icon-svg">
-                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-            </svg>
-        </button>
+    <button class="home-btn" onclick="goHome()" aria-label="Return to Home">
+        <svg viewBox="0 0 24 24" class="home-icon-svg">
+            <path d="M12 3L4 9v12h5v-7h6v7h5V9z"/>
+        </svg>
+    </button>
 
+    <div class="scroll-container">
         <div class="card" id="section-links" style="display: none;">
             <h2>Delivery Links</h2>
             <div class="input-group">
@@ -224,7 +223,6 @@
             <h2>Subscriptions</h2>
             <p style="text-align: center; color: var(--text-muted);">Coming soon...</p>
         </div>
-
     </div>
 </div>
 
@@ -237,7 +235,6 @@ function enterApp(tab) {
     document.getElementById('entryHub').classList.add('active-hide');
     document.getElementById('liquidBg').classList.add('fade-out');
     
-    // Switch to correct card
     document.getElementById('section-links').style.display = tab === 'links' ? 'block' : 'none';
     document.getElementById('section-subs').style.display = tab === 'subs' ? 'block' : 'none';
 
@@ -245,21 +242,16 @@ function enterApp(tab) {
         document.getElementById('mainApp').style.display = 'flex';
         setTimeout(() => { 
             document.getElementById('mainApp').classList.add('visible'); 
-            document.body.style.overflow = 'auto'; // Unlock scroll
         }, 50);
     }, 500);
 }
 
 // 🔙 RETURN TO HUB
 function goHome() {
-    // Fade out main app
     document.getElementById('mainApp').classList.remove('visible');
     
     setTimeout(() => {
         document.getElementById('mainApp').style.display = 'none';
-        document.body.style.overflow = 'hidden'; // Lock scroll
-        
-        // Bring back the hub and bokeh
         document.getElementById('entryHub').classList.remove('active-hide');
         document.getElementById('liquidBg').classList.remove('fade-out');
     }, 600);
