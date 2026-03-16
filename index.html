@@ -5,41 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Delivery Command</title>
     <style>
+        /* 🎨 THEME ENGINE */
         :root {
-            --bg-outer: #f5f5f7; 
-            --card-bg: #ffffff; 
-            --text-main: #1d1d1f; 
-            --text-muted: #86868b; 
-            --apple-blue: #007aff; 
-            --btn-text: #ffffff; 
-            --input-bg: #f5f5f7; 
-            --ios-green: #34c759; 
-            --switch-bg: #e5e5ea;
+            --bg-outer: #f5f5f7; --card-bg: #ffffff; --text-main: #1d1d1f; 
+            --text-muted: #86868b; --apple-blue: #1a73e8; 
+            --input-bg: #f5f5f7; --ios-green: #34c759; --switch-bg: #e5e5ea;
             --blob-1: #ffb6ff; --blob-2: #b6ffff; --blob-3: #b6b6ff;
-            --card-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg-outer: #000000; 
-                --card-bg: #1c1c1e; 
-                --text-main: #f5f5f7; 
-                --text-muted: #98989d; 
-                --apple-blue: #8ab4f8; 
-                --btn-text: #1c1c1e;   
-                --input-bg: #2c2c2e; 
-                --switch-bg: #39393d;
+                --bg-outer: #000000; --card-bg: #1c1c1e; --text-main: #f5f5f7; 
+                --text-muted: #98989d; --apple-blue: #8ab4f8; 
+                --input-bg: #2c2c2e; --switch-bg: #39393d;
                 --blob-1: #3a005c; --blob-2: #002d5c; --blob-3: #1c005c;
-                --card-shadow: 0 20px 50px rgba(0,0,0,0.2);
             }
         }
 
+        /* 🔒 VIEWPORT & BOUNCE LOCK */
         html, body {
-            margin: 0; padding: 0; width: 100%; height: 100%;
+            margin: 0; padding: 0; width: 100%; 
+            height: 100dvh; 
             background-color: var(--bg-outer);
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             -webkit-font-smoothing: antialiased; color: var(--text-main);
             overflow: hidden; 
+            /* This allows the bounce effect to be contained */
+            overscroll-behavior: none; 
         }
 
         /* 🌊 LIQUID BOKEH */
@@ -54,45 +46,50 @@
         /* 🧊 ENTRY HUB */
         .entry-hub-wrapper { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 5000; transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease; }
         .entry-hub-wrapper.active-hide { transform: translateY(-120vh); opacity: 0; pointer-events: none; }
-        .glass-hub { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 38px; padding: 40px 24px; width: calc(100% - 60px); max-width: 360px; box-shadow: 0 30px 60px rgba(0,0,0,0.12); text-align: center; transition: max-width 0.4s ease; }
+        .glass-hub { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 38px; padding: 40px 24px; width: calc(100% - 60px); max-width: 360px; box-shadow: 0 30px 60px rgba(0,0,0,0.12); text-align: center; }
         @media (prefers-color-scheme: dark) { .glass-hub { background: rgba(30, 30, 30, 0.35); border: 1px solid rgba(255, 255, 255, 0.12); } }
         .glass-hub h1 { margin: 0 0 12px 0; font-size: 32px; font-weight: 800; letter-spacing: -0.04em; }
         .glass-hub p { margin: 0 0 36px 0; font-size: 16px; color: var(--text-muted); line-height: 1.4; }
         .hub-btn { display: block; width: 100%; padding: 18px; margin-bottom: 12px; background: var(--card-bg); color: var(--text-main); border: none; border-radius: 20px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .hub-btn-primary { background: var(--apple-blue); color: var(--btn-text); }
+        .hub-btn-primary { background: var(--apple-blue); color: white; }
         .hub-btn:active { transform: scale(0.95); }
 
         /* 📱 MAIN APP */
-        .main-app-container { width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; opacity: 0; z-index: 10; position: relative; transition: opacity 0.8s ease; }
+        .main-app-container { width: 100%; height: 100dvh; display: none; flex-direction: column; opacity: 0; z-index: 10; position: relative; transition: opacity 0.8s ease; overflow: hidden; }
         .main-app-container.visible { display: flex; opacity: 1; }
         .home-btn { position: absolute; top: 20px; left: 20px; background: transparent; border: none; cursor: pointer; padding: 8px; z-index: 100; transition: 0.2s; -webkit-tap-highlight-color: transparent; }
         .home-btn:active { transform: scale(0.85); opacity: 0.6; }
         .home-icon-svg { width: 20px; fill: var(--text-main); }
 
-        .scroll-container { width: 100%; padding: 60px 0 60px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; height: 100%; -webkit-overflow-scrolling: touch; }
-        
-        /* 📱 MAIN APP ADAPTIVE FIX */
+        /* 🎯 CENTERING + NATIVE BOUNCE */
+        .scroll-container { 
+            width: 100%; 
+            height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch; /* Required for iOS rubber-band */
+            padding: 40px 0;
+            overscroll-behavior-y: contain; /* Keeps bounce local */
+        }
+
+        /* Responsive toggle for small screens */
+        @media (max-height: 720px) {
+            .scroll-container { justify-content: flex-start; padding-top: 60px; }
+        }
+
         .card { 
-            width: 90%; 
-            max-width: 500px; 
+            width: calc(100% - 40px); 
+            max-width: 440px; 
             background: var(--card-bg); 
             border-radius: 28px; 
             padding: 32px 24px; 
             box-sizing: border-box; 
-            box-shadow: var(--card-shadow); 
-            margin-bottom: 40px; 
-            transition: max-width 0.4s ease, padding 0.4s ease; 
-        }
-
-        /* 🖥️ DESKTOP SPECIFIC */
-        @media (min-width: 1024px) {
-            .card {
-                max-width: 650px; 
-                padding: 48px;    
-            }
-            .glass-hub {
-                max-width: 500px; 
-            }
+            box-shadow: 0 20px 50px rgba(0,0,0,0.08); 
+            margin: auto 0; /* Ensures centering works with scroll */
+            flex-shrink: 0; 
         }
 
         /* 🍏 UI ELEMENTS */
@@ -103,7 +100,7 @@
         .name-row { display: flex; gap: 12px; }
         
         input[type="text"], input[type="url"], select { width: 100%; background: var(--input-bg); border: 1px solid transparent; border-radius: 14px; padding: 16px; font-size: 17px; color: var(--text-main); box-sizing: border-box; outline: none; transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1); -webkit-appearance: none; }
-        input:focus { border-color: var(--apple-blue); background: var(--card-bg); box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.15); }
+        input:focus { border-color: var(--apple-blue); background: var(--card-bg); box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1); }
         
         .input-error { border-color: #ff3b30 !important; background: rgba(255, 59, 48, 0.05) !important; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
@@ -123,23 +120,20 @@
         .segment-slider { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc(50% - 2px); background: var(--card-bg); border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         input#ig-select:checked ~ .segment-slider { transform: translateX(100%); }
 
-        /* 🔘 BUTTONS */
-        .btn-row { display: flex; gap: 12px; align-items: center; }
-        button { border: none; border-radius: 980px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color: transparent; outline: none; }
+        .btn-row { display: flex; gap: 12px; align-items: center; margin-top: 10px; }
+        button { border: none; border-radius: 980px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color: transparent; }
         button:active { transform: scale(0.97); }
-
-        .btn-ok { flex: 2; padding: 16px; background: var(--apple-blue); color: var(--btn-text); display: flex; justify-content: center; align-items: center; }
-        .btn-ok:hover { filter: brightness(0.95); }
-        .btn-ok.success { background: transparent !important; color: var(--apple-blue) !important; border: 1.5px solid var(--apple-blue); }
-
+        .btn-ok { flex: 2; padding: 16px; background: var(--apple-blue); color: white; display: flex; justify-content: center; align-items: center; }
+        .btn-ok.success { background: transparent !important; color: var(--apple-blue) !important; border: 1.5px solid var(--apple-blue); box-sizing: border-box; }
         .btn-clear { background: transparent; color: var(--apple-blue); padding: 16px 24px; font-size: 15px; }
         .btn-clear:hover { background: rgba(26, 115, 232, 0.05); }
 
+        /* PREVIEW AREA */
         #status { text-align: center; color: var(--ios-green); font-size: 13px; margin-top: 12px; font-weight: 700; opacity: 0; transition: 0.3s; }
         #previewContainer { margin-top: 30px; background: var(--input-bg); padding: 24px; border-radius: 18px; display: none; animation: slideUp 0.5s ease; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         #previewBox { font-size: 14px; line-height: 1.5; white-space: pre-wrap; color: var(--text-muted); margin-bottom: 16px; }
-        .btn-copy-big { width: 100%; padding: 16px; background: var(--apple-blue); color: var(--btn-text); font-weight: bold; border-radius: 14px; }
+        .btn-copy-big { width: 100%; padding: 16px; background: var(--apple-blue); color: white; font-weight: bold; border-radius: 14px; }
         
         .spinner { border: 2.5px solid rgba(255,255,255,0.3); border-top: 2.5px solid white; border-radius: 50%; width: 16px; height: 16px; animation: spin 0.8s linear infinite; margin-right: 10px; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -236,10 +230,7 @@ function goHome() {
     setTimeout(() => { document.getElementById('mainApp').style.display = 'none'; document.getElementById('entryHub').classList.remove('active-hide'); document.getElementById('liquidBg').classList.remove('fade-out'); }, 600);
 }
 
-function toggleVisibility(id) { 
-    const isChecked = document.getElementById('toggle' + id.charAt(0).toUpperCase() + id.slice(1)).checked;
-    document.getElementById('container-' + id).style.display = isChecked ? 'block' : 'none'; 
-}
+function toggleVisibility(id) { document.getElementById('container-' + id).style.display = document.getElementById('toggle' + id.charAt(0).toUpperCase() + id.slice(1)).checked ? 'block' : 'none'; }
 
 // 🛡️ API ENGINE
 async function shortenUrl(url) {
@@ -260,49 +251,20 @@ async function processLinks() {
     const inputs = { gd: document.getElementById('gd'), db: document.getElementById('db'), tn: document.getElementById('tn') };
     
     let hasName = !!nameEl.value.trim();
-    let hasOneLink = false;
-    let hasInvalidUrl = false;
-    let invalidIds = [];
+    let hasOneLink = Object.values(inputs).some(i => i.value.trim() !== "" && document.getElementById('toggle' + i.id.charAt(0).toUpperCase() + i.id.slice(1)).checked);
 
-    // Basic URL regex (requires a dot, no spaces)
-    const urlRegex = /^(https?:\/\/)?([\w\-]+(\.[\w\-]+)+)([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?$/i;
-
-    // Check all inputs
-    ['gd', 'db', 'tn'].forEach(id => {
-        const val = inputs[id].value.trim();
-        const isToggled = document.getElementById('toggle' + id.charAt(0).toUpperCase() + id.slice(1)).checked;
-        
-        if (isToggled && val !== "") {
-            hasOneLink = true;
-            if (!urlRegex.test(val)) {
-                hasInvalidUrl = true;
-                invalidIds.push(id);
-            }
-        }
-    });
-
-    // Error Handling
-    if (!hasName || !hasOneLink || hasInvalidUrl) {
+    if (!hasName || !hasOneLink) {
         if (!hasName) nameEl.classList.add('input-error', 'shake');
-        
-        if (!hasOneLink && !hasInvalidUrl) { 
+        if (!hasOneLink) {
             btn.classList.add('shake');
             ['gd', 'db', 'tn'].forEach(id => {
-                if(document.getElementById('toggle' + id.charAt(0).toUpperCase() + id.slice(1)).checked) {
-                    document.getElementById(id).classList.add('input-error');
-                }
+                if(document.getElementById('toggle' + id.charAt(0).toUpperCase() + id.slice(1)).checked) document.getElementById(id).classList.add('input-error');
             });
         }
-
-        if (hasInvalidUrl) { 
-            btn.classList.add('shake');
-            invalidIds.forEach(id => document.getElementById(id).classList.add('input-error', 'shake'));
-        }
-
         setTimeout(() => { 
             nameEl.classList.remove('input-error', 'shake'); 
             btn.classList.remove('shake'); 
-            ['gd', 'db', 'tn'].forEach(id => document.getElementById(id).classList.remove('input-error', 'shake'));
+            ['gd', 'db', 'tn'].forEach(id => document.getElementById(id).classList.remove('input-error'));
         }, 800);
         return;
     }
@@ -311,24 +273,13 @@ async function processLinks() {
     document.getElementById('spinner').style.display = 'block';
     document.getElementById('btnText').innerText = '...';
 
-    // Format URL correctly before shortening (adds https:// if missing)
-    const formatUrl = (url) => (!url.startsWith('http://') && !url.startsWith('https://')) ? 'https://' + url : url;
-
-    shortLinks.gd = (document.getElementById('toggleGd').checked && inputs.gd.value.trim()) ? await shortenUrl(formatUrl(inputs.gd.value.trim())) : "";
-    shortLinks.db = (document.getElementById('toggleDb').checked && inputs.db.value.trim()) ? await shortenUrl(formatUrl(inputs.db.value.trim())) : "";
-    shortLinks.tn = (document.getElementById('toggleTn').checked && inputs.tn.value.trim()) ? await shortenUrl(formatUrl(inputs.tn.value.trim())) : "";
+    shortLinks.gd = document.getElementById('toggleGd').checked ? await shortenUrl(inputs.gd.value.trim()) : "";
+    shortLinks.db = document.getElementById('toggleDb').checked ? await shortenUrl(inputs.db.value.trim()) : "";
+    shortLinks.tn = document.getElementById('toggleTn').checked ? await shortenUrl(inputs.tn.value.trim()) : "";
 
     renderMessage();
 
-    // AUTO-HIDE BLANK LINKS
-    ['gd', 'db', 'tn'].forEach(id => {
-        if (document.getElementById(id).value.trim() === "") {
-            const toggle = document.getElementById('toggle' + id.charAt(0).toUpperCase() + id.slice(1));
-            toggle.checked = false;
-            toggleVisibility(id);
-        }
-    });
-
+    // SUCCESS STATE
     btn.classList.add('success');
     document.getElementById('spinner').style.display = 'none';
     document.getElementById('btnText').innerText = 'Done';
@@ -343,21 +294,18 @@ async function processLinks() {
 
 function renderMessage() {
     const isIG = document.getElementById('ig-select').checked;
-    const b = isIG ? "" : "*"; 
-    const i = isIG ? "" : "_";
-    const arrow = "→ "; 
-    
+    const b = isIG ? "" : "*"; const i = isIG ? "" : "_";
     const name = document.getElementById('clientName').value;
     const title = document.getElementById('title').value;
 
     document.getElementById('label-wa').className = isIG ? "segment-label" : "segment-label active";
     document.getElementById('label-ig').className = isIG ? "segment-label active" : "segment-label";
 
-    let m = `Hello, ${title} ${b}${i}${name}${i}${b}!\nYour photos are now ready for download\n\n`;
+    let m = `Hello ${title} ${name}!\nYour photos are now ready for download\n\n`;
     if (shortLinks.gd || shortLinks.db || shortLinks.tn) m += `For your convenience, the files are available via the following platforms:\n\n`;
-    if (shortLinks.gd) m += `${b}Google Drive${b}\n${i}Best for viewing & long-term storage (1 year)${i}\n${arrow}${shortLinks.gd}\n\n`;
-    if (shortLinks.db) m += `${b}Dropbox${b}\n${i}Quick access for the next 2 weeks${i}\n${arrow}${shortLinks.db}\n\n`;
-    if (shortLinks.tn) m += `${b}TransferNow${b}\n${i}Fast direct download (active for 7 days)${i}\n${arrow}${shortLinks.tn}\n\n`;
+    if (shortLinks.gd) m += `${b}Google Drive${b}\n${i}Best for viewing & long-term storage (1 year)${i}\n${shortLinks.gd}\n\n`;
+    if (shortLinks.db) m += `${b}Dropbox${b}\n${i}Quick access for the next 2 weeks${i}\n${shortLinks.db}\n\n`;
+    if (shortLinks.tn) m += `${b}TransferNow${b}\n${i}Fast direct download (active for 7 days)${i}\n${shortLinks.tn}\n\n`;
     m += `Kindly ensure that the files are downloaded and safely saved before the respective link expires.\n\nShould you experience any difficulty accessing the files, please feel free to contact me.\n\nThank you, and I hope you enjoy the photos!`;
 
     finalMessage = m;
@@ -369,20 +317,7 @@ function renderMessage() {
 function liveUpdatePreview() { if (finalMessage) renderMessage(); }
 function showSuccess() { document.getElementById('status').style.opacity = '1'; setTimeout(() => { document.getElementById('status').style.opacity = '0'; }, 2000); }
 function forceCopy() { navigator.clipboard.writeText(finalMessage).then(showSuccess); }
-
-function clearFields() { 
-    fields.forEach(id => { 
-        document.getElementById(id).value = ''; 
-        localStorage.removeItem(`cmd_${id}`); 
-    }); 
-    ['Gd', 'Db', 'Tn'].forEach(suffix => {
-        const toggle = document.getElementById('toggle' + suffix);
-        toggle.checked = true;
-        toggleVisibility(suffix.toLowerCase());
-    });
-    document.getElementById('previewContainer').style.display = 'none'; 
-    finalMessage = ""; 
-}
+function clearFields() { fields.forEach(id => { document.getElementById(id).value = ''; localStorage.removeItem(`cmd_${id}`); }); document.getElementById('previewContainer').style.display = 'none'; finalMessage = ""; }
 </script>
 </body>
 </html>
