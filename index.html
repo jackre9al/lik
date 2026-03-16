@@ -6,18 +6,31 @@
     <title>Delivery Command</title>
     <style>
         :root {
-            --bg-outer: #f5f5f7; --card-bg: #ffffff; --text-main: #1d1d1f; 
-            --text-muted: #86868b; --apple-blue: #0071e3; --apple-blue-hover: #0077ED; 
-            --input-bg: #f5f5f7; --ios-green: #34c759; --switch-bg: #e5e5ea;
+            --bg-outer: #f5f5f7; 
+            --card-bg: #ffffff; 
+            --text-main: #1d1d1f; 
+            --text-muted: #86868b; 
+            --apple-blue: #007aff; 
+            --btn-text: #ffffff; 
+            --input-bg: #f5f5f7; 
+            --ios-green: #34c759; 
+            --switch-bg: #e5e5ea;
             --blob-1: #ffb6ff; --blob-2: #b6ffff; --blob-3: #b6b6ff;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg-outer: #000000; --card-bg: #1c1c1e; --text-main: #f5f5f7; 
-                --text-muted: #98989d; --apple-blue: #0a84ff; --apple-blue-hover: #0070e6; 
-                --input-bg: #2c2c2e; --switch-bg: #39393d;
+                --bg-outer: #000000; 
+                --card-bg: #1c1c1e; 
+                --text-main: #f5f5f7; 
+                --text-muted: #98989d; 
+                --apple-blue: #8ab4f8; 
+                --btn-text: #1c1c1e;   
+                --input-bg: #2c2c2e; 
+                --switch-bg: #39393d;
                 --blob-1: #3a005c; --blob-2: #002d5c; --blob-3: #1c005c;
+                --card-shadow: 0 20px 50px rgba(0,0,0,0.2);
             }
         }
 
@@ -30,131 +43,105 @@
         }
 
         /* 🌊 LIQUID BOKEH */
-        .liquid-bg {
-            position: fixed; inset: 0;
-            z-index: 1; overflow: hidden; pointer-events: none;
-            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+        .liquid-bg { position: fixed; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; transition: opacity 1.2s ease; }
         .liquid-bg.fade-out { opacity: 0; }
-        
-        .blob {
-            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5;
-            animation: float 25s infinite ease-in-out alternate;
-        }
+        .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; animation: float 25s infinite ease-in-out alternate; }
         .blob-1 { width: 60vw; height: 60vw; background: var(--blob-1); top: -10%; left: -10%; }
         .blob-2 { width: 70vw; height: 70vw; background: var(--blob-2); bottom: -15%; right: -10%; animation-delay: -5s; }
         .blob-3 { width: 50vw; height: 50vw; background: var(--blob-3); top: 20%; left: 30%; animation-delay: -12s; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(10%, 10%) scale(1.1); } }
 
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(10%, 10%) scale(1.1); }
-        }
-
-        /* 🧊 ADAPTIVE GLASS HUB (FIXED CENTERING) */
-        .entry-hub-wrapper {
-            position: fixed; inset: 0; /* Uses inset instead of 100vh to fix mobile browser offset */
-            display: flex; justify-content: center; align-items: center; z-index: 5000;
-            background: rgba(0,0,0,0.02);
-            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
-        }
-
-        .entry-hub-wrapper.active-hide {
-            transform: translateY(-120vh); 
-            opacity: 0; pointer-events: none;
-        }
-
-        .glass-hub {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 38px; padding: 40px 24px;
-            width: calc(100% - 60px); 
-            max-width: 360px; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.12); text-align: center;
-        }
-        @media (prefers-color-scheme: dark) {
-            .glass-hub { background: rgba(30, 30, 30, 0.35); border: 1px solid rgba(255, 255, 255, 0.12); }
-        }
-
+        /* 🧊 ENTRY HUB */
+        .entry-hub-wrapper { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 5000; transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease; }
+        .entry-hub-wrapper.active-hide { transform: translateY(-120vh); opacity: 0; pointer-events: none; }
+        .glass-hub { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 38px; padding: 40px 24px; width: calc(100% - 60px); max-width: 360px; box-shadow: 0 30px 60px rgba(0,0,0,0.12); text-align: center; transition: max-width 0.4s ease; }
+        @media (prefers-color-scheme: dark) { .glass-hub { background: rgba(30, 30, 30, 0.35); border: 1px solid rgba(255, 255, 255, 0.12); } }
         .glass-hub h1 { margin: 0 0 12px 0; font-size: 32px; font-weight: 800; letter-spacing: -0.04em; }
         .glass-hub p { margin: 0 0 36px 0; font-size: 16px; color: var(--text-muted); line-height: 1.4; }
-
-        .hub-btn {
-            display: block; width: 100%; padding: 18px; margin-bottom: 12px;
-            background: var(--card-bg); color: var(--text-main);
-            border: none; border-radius: 20px; font-size: 17px; font-weight: 700;
-            cursor: pointer; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        .hub-btn-primary { background: var(--apple-blue); color: white; }
+        .hub-btn { display: block; width: 100%; padding: 18px; margin-bottom: 12px; background: var(--card-bg); color: var(--text-main); border: none; border-radius: 20px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .hub-btn-primary { background: var(--apple-blue); color: var(--btn-text); }
         .hub-btn:active { transform: scale(0.95); }
 
-        /* 📱 MAIN APP INTERFACE */
-        .main-app-container {
-            width: 100%; height: 100%; display: none; flex-direction: column; align-items: center;
-            opacity: 0; z-index: 10; position: relative;
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+        /* 📱 MAIN APP */
+        .main-app-container { width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; opacity: 0; z-index: 10; position: relative; transition: opacity 0.8s ease; }
         .main-app-container.visible { display: flex; opacity: 1; }
-
-        /* 🏠 NEW APPLE-STYLE HOME ICON (TOP LEFT, STATIC) */
-        .home-btn {
-            position: absolute; top: 20px; left: 20px; /* Fixed top left */
-            display: flex; justify-content: center; align-items: center;
-            background: transparent; border: none; cursor: pointer;
-            padding: 8px; z-index: 100;
-            transition: transform 0.2s ease, opacity 0.2s ease;
-            -webkit-tap-highlight-color: transparent;
-        }
+        .home-btn { position: absolute; top: 20px; left: 20px; background: transparent; border: none; cursor: pointer; padding: 8px; z-index: 100; transition: 0.2s; -webkit-tap-highlight-color: transparent; }
         .home-btn:active { transform: scale(0.85); opacity: 0.6; }
+        .home-icon-svg { width: 20px; fill: var(--text-main); }
+
+        .scroll-container { width: 100%; padding: 60px 0 60px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; height: 100%; -webkit-overflow-scrolling: touch; }
         
-        .home-icon-svg {
-            width: 20px; /* Small, minimalist size */
-            height: auto;
-            fill: var(--text-main);
-        }
-
-        .scroll-container { 
-            width: 100%; padding: 60px 0 60px; box-sizing: border-box; 
-            display: flex; flex-direction: column; align-items: center;
-            overflow-y: auto; height: 100%; -webkit-overflow-scrolling: touch;
-        }
-
+        /* 📱 MAIN APP ADAPTIVE FIX */
         .card { 
-            width: calc(100% - 40px); 
-            max-width: 440px; background: var(--card-bg); border-radius: 28px; 
-            padding: 32px 24px; box-sizing: border-box; box-shadow: 0 20px 50px rgba(0,0,0,0.08); 
+            width: 90%; 
+            max-width: 500px; 
+            background: var(--card-bg); 
+            border-radius: 28px; 
+            padding: 32px 24px; 
+            box-sizing: border-box; 
+            box-shadow: var(--card-shadow); 
             margin-bottom: 40px; 
+            transition: max-width 0.4s ease, padding 0.4s ease; 
         }
 
-        /* 🍏 REST OF UI */
+        /* 🖥️ DESKTOP SPECIFIC */
+        @media (min-width: 1024px) {
+            .card {
+                max-width: 650px; 
+                padding: 48px;    
+            }
+            .glass-hub {
+                max-width: 500px; 
+            }
+        }
+
+        /* 🍏 UI ELEMENTS */
         h2 { font-size: 24px; font-weight: 700; text-align: center; margin: 0 0 24px 0; }
         .input-group { margin-bottom: 20px; }
+        label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
         .name-row { display: flex; gap: 12px; }
-        input[type="text"], input[type="url"], select { width: 100%; background: var(--input-bg); border: 1px solid transparent; border-radius: 14px; padding: 16px; font-size: 17px; color: var(--text-main); box-sizing: border-box; outline: none; transition: 0.2s; -webkit-appearance: none; }
-        input:focus { border-color: var(--apple-blue); background: var(--card-bg); box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12); }
+        
+        input[type="text"], input[type="url"], select { width: 100%; background: var(--input-bg); border: 1px solid transparent; border-radius: 14px; padding: 16px; font-size: 17px; color: var(--text-main); box-sizing: border-box; outline: none; transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1); -webkit-appearance: none; }
+        input:focus { border-color: var(--apple-blue); background: var(--card-bg); box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.15); }
+        
+        .input-error { border-color: #ff3b30 !important; background: rgba(255, 59, 48, 0.05) !important; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+
         .switch { position: relative; display: inline-block; width: 44px; height: 26px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--switch-bg); transition: .3s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--switch-bg); transition: .3s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         input:checked + .slider { background-color: var(--ios-green); }
         input:checked + .slider:before { transform: translateX(18px); }
+
         .segmented-control { display: flex; background: var(--input-bg); border-radius: 12px; padding: 2px; width: 100%; max-width: 260px; margin: 10px auto 30px; position: relative; }
         .segmented-control input { display: none; }
         .segment-label { flex: 1; text-align: center; padding: 10px 0; font-size: 14px; font-weight: 700; color: var(--text-muted); cursor: pointer; z-index: 1; transition: 0.2s; }
         .segment-label.active { color: var(--text-main); }
         .segment-slider { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc(50% - 2px); background: var(--card-bg); border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         input#ig-select:checked ~ .segment-slider { transform: translateX(100%); }
-        .btn-row { display: flex; gap: 12px; }
-        button { padding: 18px; border: none; border-radius: 980px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .btn-ok { flex: 2; background: var(--apple-blue); color: white; display: flex; justify-content: center; align-items: center; }
-        #status { text-align: center; color: var(--ios-green); font-size: 14px; margin-top: 16px; font-weight: 700; opacity: 0; transition: 0.3s; }
-        #previewContainer { margin-top: 30px; background: var(--input-bg); padding: 24px; border-radius: 18px; display: none; }
+
+        /* 🔘 BUTTONS */
+        .btn-row { display: flex; gap: 12px; align-items: center; }
+        button { border: none; border-radius: 980px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color: transparent; outline: none; }
+        button:active { transform: scale(0.97); }
+
+        .btn-ok { flex: 2; padding: 16px; background: var(--apple-blue); color: var(--btn-text); display: flex; justify-content: center; align-items: center; }
+        .btn-ok:hover { filter: brightness(0.95); }
+        .btn-ok.success { background: transparent !important; color: var(--apple-blue) !important; border: 1.5px solid var(--apple-blue); }
+
+        .btn-clear { background: transparent; color: var(--apple-blue); padding: 16px 24px; font-size: 15px; }
+        .btn-clear:hover { background: rgba(26, 115, 232, 0.05); }
+
+        #status { text-align: center; color: var(--ios-green); font-size: 13px; margin-top: 12px; font-weight: 700; opacity: 0; transition: 0.3s; }
+        #previewContainer { margin-top: 30px; background: var(--input-bg); padding: 24px; border-radius: 18px; display: none; animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         #previewBox { font-size: 14px; line-height: 1.5; white-space: pre-wrap; color: var(--text-muted); margin-bottom: 16px; }
-        .btn-copy-big { width: 100%; padding: 16px; background: var(--apple-blue); color: white; font-weight: bold; border-radius: 14px; }
-        .spinner { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid white; border-radius: 50%; width: 18px; height: 18px; animation: spin 1s linear infinite; margin-right: 8px; display: none; }
+        .btn-copy-big { width: 100%; padding: 16px; background: var(--apple-blue); color: var(--btn-text); font-weight: bold; border-radius: 14px; }
+        
+        .spinner { border: 2.5px solid rgba(255,255,255,0.3); border-top: 2.5px solid white; border-radius: 50%; width: 16px; height: 16px; animation: spin 0.8s linear infinite; margin-right: 10px; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -177,9 +164,7 @@
 
 <div class="main-app-container" id="mainApp">
     <button class="home-btn" onclick="goHome()" aria-label="Return to Home">
-        <svg viewBox="0 0 24 24" class="home-icon-svg">
-            <path d="M12 3L4 9v12h5v-7h6v7h5V9z"/>
-        </svg>
+        <svg viewBox="0 0 24 24" class="home-icon-svg"><path d="M12 3L4 9v12h5v-7h6v7h5V9z"/></svg>
     </button>
 
     <div class="scroll-container">
@@ -189,7 +174,7 @@
                 <div class="header-row"><label>Client Name</label></div>
                 <div class="name-row">
                     <select id="title"><option value="Mr.">Mr.</option><option value="Mrs.">Mrs.</option><option value="Ms.">Ms.</option></select>
-                    <input type="text" id="clientName" class="name-input" placeholder="Name" autocomplete="off">
+                    <input type="text" id="clientName" placeholder="Name" autocomplete="off">
                 </div>
             </div>
             <div class="input-group">
@@ -205,8 +190,8 @@
                 <div id="container-tn"><input type="url" id="tn" placeholder="Paste link"></div>
             </div>
             <div class="segmented-control">
-                <input type="radio" name="platform" id="wa-select" checked onchange="updatePlatformText()">
-                <input type="radio" name="platform" id="ig-select" onchange="updatePlatformText()">
+                <input type="radio" name="platform" id="wa-select" checked onchange="liveUpdatePreview()">
+                <input type="radio" name="platform" id="ig-select" onchange="liveUpdatePreview()">
                 <div class="segment-slider"></div>
                 <label for="wa-select" class="segment-label active" id="label-wa">WhatsApp</label>
                 <label for="ig-select" class="segment-label" id="label-ig">Instagram</label>
@@ -215,110 +200,189 @@
                 <button class="btn-clear" onclick="clearFields()">Clear</button>
                 <button class="btn-ok" id="okBtn" onclick="processLinks()"><div class="spinner" id="spinner"></div><span id="btnText">OK</span></button>
             </div>
-            <div id="status">✅ Copied!</div>
-            <div id="previewContainer"><div id="previewBox"></div><button class="btn-copy-big" onclick="forceCopy()">COPY</button></div>
+            <div id="status">✅ Copied to Clipboard</div>
+            <div id="previewContainer"><div id="previewBox"></div><button class="btn-copy-big" onclick="forceCopy()">COPY AGAIN</button></div>
         </div>
 
         <div class="card" id="section-subs" style="display: none;">
-            <h2>Subscriptions</h2>
-            <p style="text-align: center; color: var(--text-muted);">Coming soon...</p>
+            <h2>Booking & Pricing</h2>
+            <p style="text-align: center; color: var(--text-muted);">Calculator coming soon...</p>
         </div>
     </div>
 </div>
 
 <script>
 const HELINK_TOKEN = "hlk_5cJGCnsYsozq5nOQgJEet8NJRp9QNRjZVyAEFzYT";
+let shortLinks = { gd: "", db: "", tn: "" };
 let finalMessage = "";
 
-// 🎬 LAUNCH APP
+// 💾 STORAGE
+const fields = ['clientName', 'gd', 'db', 'tn', 'title'];
+function saveLocal() { fields.forEach(id => localStorage.setItem(`cmd_${id}`, document.getElementById(id).value)); }
+function loadLocal() { fields.forEach(id => { const s = localStorage.getItem(`cmd_${id}`); if(s) document.getElementById(id).value = s; }); }
+document.addEventListener('DOMContentLoaded', () => { loadLocal(); fields.forEach(id => document.getElementById(id).addEventListener('input', saveLocal)); });
+
+// 🎬 NAVIGATION
 function enterApp(tab) {
     document.getElementById('entryHub').classList.add('active-hide');
     document.getElementById('liquidBg').classList.add('fade-out');
-    
     document.getElementById('section-links').style.display = tab === 'links' ? 'block' : 'none';
     document.getElementById('section-subs').style.display = tab === 'subs' ? 'block' : 'none';
-
-    setTimeout(() => {
-        document.getElementById('mainApp').style.display = 'flex';
-        setTimeout(() => { 
-            document.getElementById('mainApp').classList.add('visible'); 
-        }, 50);
-    }, 500);
+    setTimeout(() => { document.getElementById('mainApp').style.display = 'flex'; setTimeout(() => { document.getElementById('mainApp').classList.add('visible'); }, 50); }, 500);
 }
 
-// 🔙 RETURN TO HUB
 function goHome() {
     document.getElementById('mainApp').classList.remove('visible');
-    
-    setTimeout(() => {
-        document.getElementById('mainApp').style.display = 'none';
-        document.getElementById('entryHub').classList.remove('active-hide');
-        document.getElementById('liquidBg').classList.remove('fade-out');
-    }, 600);
+    setTimeout(() => { document.getElementById('mainApp').style.display = 'none'; document.getElementById('entryHub').classList.remove('active-hide'); document.getElementById('liquidBg').classList.remove('fade-out'); }, 600);
 }
 
-function toggleVisibility(id) {
-    document.getElementById('container-' + id).style.display = document.getElementById('toggle' + id.charAt(0).toUpperCase() + id.slice(1)).checked ? 'block' : 'none';
+function toggleVisibility(id) { 
+    const isChecked = document.getElementById('toggle' + id.charAt(0).toUpperCase() + id.slice(1)).checked;
+    document.getElementById('container-' + id).style.display = isChecked ? 'block' : 'none'; 
 }
 
-function updatePlatformText() {
-    const isIG = document.getElementById('ig-select').checked;
-    document.getElementById('label-wa').className = isIG ? "segment-label" : "segment-label active";
-    document.getElementById('label-ig').className = isIG ? "segment-label active" : "segment-label";
-}
-
-async function shortenUrl(longUrl) {
-    if (!longUrl || longUrl.length < 25) return longUrl;
+// 🛡️ API ENGINE
+async function shortenUrl(url) {
+    if (!url || url.length < 20) return url;
     try {
-        const r = await fetch(`https://hel.ink/api/v2/action/shorten?key=${HELINK_TOKEN}&url=${encodeURIComponent(longUrl)}`);
-        return await r.text();
-    } catch (e) { return longUrl; }
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 5000);
+        const r = await fetch(`https://hel.ink/api/v2/action/shorten?key=${HELINK_TOKEN}&url=${encodeURIComponent(url)}`, { signal: ctrl.signal });
+        clearTimeout(tid);
+        return r.ok ? await r.text() : url;
+    } catch (e) { return url; }
 }
 
+// 🚀 CORE LOGIC
 async function processLinks() {
     const btn = document.getElementById('okBtn');
+    const nameEl = document.getElementById('clientName');
+    const inputs = { gd: document.getElementById('gd'), db: document.getElementById('db'), tn: document.getElementById('tn') };
+    
+    let hasName = !!nameEl.value.trim();
+    let hasOneLink = false;
+    let hasInvalidUrl = false;
+    let invalidIds = [];
+
+    // Basic URL regex (requires a dot, no spaces)
+    const urlRegex = /^(https?:\/\/)?([\w\-]+(\.[\w\-]+)+)([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?$/i;
+
+    // Check all inputs
+    ['gd', 'db', 'tn'].forEach(id => {
+        const val = inputs[id].value.trim();
+        const isToggled = document.getElementById('toggle' + id.charAt(0).toUpperCase() + id.slice(1)).checked;
+        
+        if (isToggled && val !== "") {
+            hasOneLink = true;
+            if (!urlRegex.test(val)) {
+                hasInvalidUrl = true;
+                invalidIds.push(id);
+            }
+        }
+    });
+
+    // Error Handling
+    if (!hasName || !hasOneLink || hasInvalidUrl) {
+        if (!hasName) nameEl.classList.add('input-error', 'shake');
+        
+        if (!hasOneLink && !hasInvalidUrl) { 
+            btn.classList.add('shake');
+            ['gd', 'db', 'tn'].forEach(id => {
+                if(document.getElementById('toggle' + id.charAt(0).toUpperCase() + id.slice(1)).checked) {
+                    document.getElementById(id).classList.add('input-error');
+                }
+            });
+        }
+
+        if (hasInvalidUrl) { 
+            btn.classList.add('shake');
+            invalidIds.forEach(id => document.getElementById(id).classList.add('input-error', 'shake'));
+        }
+
+        setTimeout(() => { 
+            nameEl.classList.remove('input-error', 'shake'); 
+            btn.classList.remove('shake'); 
+            ['gd', 'db', 'tn'].forEach(id => document.getElementById(id).classList.remove('input-error', 'shake'));
+        }, 800);
+        return;
+    }
+
     btn.disabled = true;
     document.getElementById('spinner').style.display = 'block';
-    document.getElementById('btnText').innerText = 'Working...';
+    document.getElementById('btnText').innerText = '...';
 
-    const title = document.getElementById('title').value;
-    const name = document.getElementById('clientName').value || "Client";
+    // Format URL correctly before shortening (adds https:// if missing)
+    const formatUrl = (url) => (!url.startsWith('http://') && !url.startsWith('https://')) ? 'https://' + url : url;
+
+    shortLinks.gd = (document.getElementById('toggleGd').checked && inputs.gd.value.trim()) ? await shortenUrl(formatUrl(inputs.gd.value.trim())) : "";
+    shortLinks.db = (document.getElementById('toggleDb').checked && inputs.db.value.trim()) ? await shortenUrl(formatUrl(inputs.db.value.trim())) : "";
+    shortLinks.tn = (document.getElementById('toggleTn').checked && inputs.tn.value.trim()) ? await shortenUrl(formatUrl(inputs.tn.value.trim())) : "";
+
+    renderMessage();
+
+    // AUTO-HIDE BLANK LINKS
+    ['gd', 'db', 'tn'].forEach(id => {
+        if (document.getElementById(id).value.trim() === "") {
+            const toggle = document.getElementById('toggle' + id.charAt(0).toUpperCase() + id.slice(1));
+            toggle.checked = false;
+            toggleVisibility(id);
+        }
+    });
+
+    btn.classList.add('success');
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('btnText').innerText = 'Done';
+    if (window.navigator.vibrate) window.navigator.vibrate(40); 
+
+    setTimeout(() => {
+        btn.disabled = false;
+        btn.classList.remove('success');
+        document.getElementById('btnText').innerText = 'OK';
+    }, 2500);
+}
+
+function renderMessage() {
     const isIG = document.getElementById('ig-select').checked;
-    const b = isIG ? "" : "*"; const i = isIG ? "" : "_";
+    const b = isIG ? "" : "*"; 
+    const i = isIG ? "" : "_";
+    const arrow = "→ "; 
+    
+    const name = document.getElementById('clientName').value;
+    const title = document.getElementById('title').value;
 
-    let gd = ""; if(document.getElementById('toggleGd').checked) gd = await shortenUrl(document.getElementById('gd').value.trim());
-    let db = ""; if(document.getElementById('toggleDb').checked) db = await shortenUrl(document.getElementById('db').value.trim());
-    let tn = ""; if(document.getElementById('toggleTn').checked) tn = await shortenUrl(document.getElementById('tn').value.trim());
+    document.getElementById('label-wa').className = isIG ? "segment-label" : "segment-label active";
+    document.getElementById('label-ig').className = isIG ? "segment-label active" : "segment-label";
 
-    let m = `Hello ${title} ${name}!\nYour photos are now ready for download\n\n`;
-    if (gd || db || tn) m += `For your convenience, the files are available via the following platforms:\n\n`;
-    if (gd) m += `${b}Google Drive${b}\n${i}Best for viewing & long-term storage (1 year)${i}\n${gd}\n\n`;
-    if (db) m += `${b}Dropbox${b}\n${i}Quick access for the next 2 weeks${i}\n${db}\n\n`;
-    if (tn) m += `${b}TransferNow${b}\n${i}Fast direct download (active for 7 days)${i}\n${tn}\n\n`;
+    let m = `Hello, ${title} ${b}${i}${name}${i}${b}!\nYour photos are now ready for download\n\n`;
+    if (shortLinks.gd || shortLinks.db || shortLinks.tn) m += `For your convenience, the files are available via the following platforms:\n\n`;
+    if (shortLinks.gd) m += `${b}Google Drive${b}\n${i}Best for viewing & long-term storage (1 year)${i}\n${arrow}${shortLinks.gd}\n\n`;
+    if (shortLinks.db) m += `${b}Dropbox${b}\n${i}Quick access for the next 2 weeks${i}\n${arrow}${shortLinks.db}\n\n`;
+    if (shortLinks.tn) m += `${b}TransferNow${b}\n${i}Fast direct download (active for 7 days)${i}\n${arrow}${shortLinks.tn}\n\n`;
     m += `Kindly ensure that the files are downloaded and safely saved before the respective link expires.\n\nShould you experience any difficulty accessing the files, please feel free to contact me.\n\nThank you, and I hope you enjoy the photos!`;
 
     finalMessage = m;
     document.getElementById('previewContainer').style.display = 'block';
     document.getElementById('previewBox').innerText = m;
-    btn.disabled = false; document.getElementById('spinner').style.display = 'none'; document.getElementById('btnText').innerText = 'OK';
     if (navigator.clipboard) navigator.clipboard.writeText(m).then(showSuccess);
 }
 
-function showSuccess() {
-    document.getElementById('status').style.opacity = '1';
-    setTimeout(() => { document.getElementById('status').style.opacity = '0'; }, 2000);
-}
-
+function liveUpdatePreview() { if (finalMessage) renderMessage(); }
+function showSuccess() { document.getElementById('status').style.opacity = '1'; setTimeout(() => { document.getElementById('status').style.opacity = '0'; }, 2000); }
 function forceCopy() { navigator.clipboard.writeText(finalMessage).then(showSuccess); }
 
-function clearFields() {
-    ['clientName', 'gd', 'db', 'tn'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('previewContainer').style.display = 'none';
+function clearFields() { 
+    fields.forEach(id => { 
+        document.getElementById(id).value = ''; 
+        localStorage.removeItem(`cmd_${id}`); 
+    }); 
+    ['Gd', 'Db', 'Tn'].forEach(suffix => {
+        const toggle = document.getElementById('toggle' + suffix);
+        toggle.checked = true;
+        toggleVisibility(suffix.toLowerCase());
+    });
+    document.getElementById('previewContainer').style.display = 'none'; 
+    finalMessage = ""; 
 }
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && ['INPUT', 'SELECT'].includes(document.activeElement.tagName)) processLinks();
-});
 </script>
 </body>
 </html>
